@@ -13,7 +13,7 @@ export default function FilesPage() {
 
   const { data: documents } = useQuery(['files'], async () => {
     const { data, error } = await supabase
-      .from('documents_with_storage_path')
+      .from('measurements_with_storage_path')
       .select();
 
     if (error) {
@@ -39,7 +39,7 @@ export default function FilesPage() {
 
             if (selectedFile) {
               const { error } = await supabase.storage
-                .from('files')
+                .from('measurements')
                 .upload(
                   `${crypto.randomUUID()}/${selectedFile.name}`,
                   selectedFile
@@ -63,6 +63,7 @@ export default function FilesPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
           {documents.map((document) => (
             <div
+              key={document.id}
               className="flex flex-col gap-2 justify-center items-center border rounded-md p-4 sm:p-6 text-center overflow-hidden cursor-pointer hover:bg-slate-100"
               onClick={async () => {
                 if (!document.storage_object_path) {
@@ -74,7 +75,7 @@ export default function FilesPage() {
                 }
 
                 const { data, error } = await supabase.storage
-                  .from('files')
+                  .from('measurements')
                   .createSignedUrl(document.storage_object_path, 60);
 
                 if (error) {
