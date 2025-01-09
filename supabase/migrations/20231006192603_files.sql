@@ -1,16 +1,9 @@
--- Enable required extensions
-create extension if not exists pg_net with schema extensions;
-create extension if not exists vector with schema extensions;
-
--- Create schema
 create schema private;
 
--- Create storage bucket for measurements
 insert into storage.buckets (id, name)
-values ('measurements', 'measurements')
+values ('files', 'files')
 on conflict do nothing;
 
--- Create UUID helper function
 create or replace function private.uuid_or_null(str text)
 returns uuid
 language plpgsql
@@ -22,25 +15,24 @@ begin
   end;
 $$;
 
--- Storage policies for measurement files
-create policy "Authenticated users can upload measurements"
+create policy "Authenticated users can upload files"
 on storage.objects for insert to authenticated with check (
-  bucket_id = 'measurements' and
-  owner = auth.uid() and
-  private.uuid_or_null(path_tokens[1]) is not null
+  bucket_id = 'files' and
+    owner = auth.uid() and
+    private.uuid_or_null(path_tokens[1]) is not null
 );
 
-create policy "Users can view their own measurements"
+create policy "Users can view their own files"
 on storage.objects for select to authenticated using (
-  bucket_id = 'measurements' and owner = auth.uid()
+  bucket_id = 'files' and owner = auth.uid()
 );
 
-create policy "Users can update their own measurements"
+create policy "Users can update their own files"
 on storage.objects for update to authenticated with check (
-  bucket_id = 'measurements' and owner = auth.uid()
+  bucket_id = 'files' and owner = auth.uid()
 );
 
-create policy "Users can delete their own measurements"
+create policy "Users can delete their own files"
 on storage.objects for delete to authenticated using (
-  bucket_id = 'measurements' and owner = auth.uid()
+  bucket_id = 'files' and owner = auth.uid()
 );

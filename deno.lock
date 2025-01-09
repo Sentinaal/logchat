@@ -32,5 +32,37 @@
     "https://esm.sh/v135/utf-8-validate@6.0.4/denonext/utf-8-validate.mjs": "ab4990b545a45f10f7711c69046ee3e9c5b732b9781937f922cefd3fc99d0e88",
     "https://esm.sh/v135/websocket@1.0.34/denonext/websocket.mjs": "dfe5d62007e9f7430d561e2376fe47caa9d04cb016d83d3386fcc2206a90296b",
     "https://esm.sh/v135/ws@8.18.0/denonext/ws.mjs": "b4c6f51c7c4d60d2a880889c9b07e00aa367adf20a8304a365cc5e09051a5004"
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@huggingface/transformers@^3.2.4",
+        "npm:@radix-ui/react-slot@^1.0.2",
+        "npm:@radix-ui/react-toast@^1.1.5",
+        "npm:@supabase/auth-helpers-nextjs@latest",
+        "npm:@supabase/supabase-js@latest",
+        "npm:@tanstack/react-query@^4.35.7",
+        "npm:@types/node@20.3.1",
+        "npm:@types/react-dom@18.2.5",
+        "npm:@types/react@18.2.12",
+        "npm:@xenova/transformers@^2.6.2",
+        "npm:ai@^2.2.14",
+        "npm:autoprefixer@10.4.15",
+        "npm:class-variance-authority@0.7",
+        "npm:clsx@2",
+        "npm:encoding@~0.1.13",
+        "npm:lucide-react@0.284",
+        "npm:next@latest",
+        "npm:postcss@8.4.29",
+        "npm:react-dom@18.2.0",
+        "npm:react@18.2.0",
+        "npm:supabase@^1.163.2",
+        "npm:tailwind-merge@^1.14.0",
+        "npm:tailwindcss-animate@^1.0.7",
+        "npm:tailwindcss@3.3.3",
+        "npm:three-dots@~0.3.2",
+        "npm:typescript@5.1.3"
+      ]
+    }
   }
 }

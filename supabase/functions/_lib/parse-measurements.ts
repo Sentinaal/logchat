@@ -26,7 +26,7 @@ interface RootNode extends BaseNode {
 }
 
 export type MeasurementSection = {
-  values: number[];
+  sensor_readings: number[]; 
   total_measurements: number;
   min: number;
   max: number;
@@ -119,62 +119,65 @@ function parseBlock(block: string): MeasurementNode | null {
   }
 }
 
-/**
- * Converts a measurement node into a section
- */
-function nodeToSection(node: MeasurementNode): MeasurementSection | null {
+export function processMeasurements(content: string): ProcessedMeasurements {
   try {
-    const valuesNode = node.children.find((child): child is ValueNode => child.type === 'values');
-    const metadataNode = node.children.find((child): child is MetadataNode => child.type === 'metadata');
+    // Parse JSON content
+    console.log('Raw file content:', content);
+    const json = JSON.parse(content);
 
-    if (!valuesNode || !metadataNode) return null;
+    console.log('Parsed JSON:', json);
 
-    const values = valuesNode.values;
-    const metadata = metadataNode.metadata;
+    // Ensure it's an array (wrap single object in array if needed)
+    const measurementNodes = Array.isArray(json) ? json : [json];
 
-    return {
-      values,
-      total_measurements: values.length,
-      min: Math.min(...values),
-      max: Math.max(...values),
-      avg: values.reduce((a, b) => a + b, 0) / values.length,
-      units: metadata.units || 'Watts',
-      description: metadata.description || '',
-      source: metadata.source || '',
-      tst_id: metadata.tst_id || new Date().toISOString(),
-      uut_type: metadata.uut_type || 'unknown',
-      status: metadata.status || 'unknown',
-      serial_number: metadata.serial_number || 'unknown',
-      category: metadata.category || 'power',
-      sub_category: metadata.sub_category || 'OTHER',
-      sensor_name: metadata.sensor_name || ''
-    };
+    // Process each node into a section
+    const sections = measurementNodes
+      .map((node) => {
+        try {
+          return nodeToSection(node);
+        } catch (error) {
+          console.error('Error converting node to section:', error, node);
+          return null;
+        }
+      })
+      .filter((section): section is MeasurementSection => section !== null);
+
+    console.log('Parsed sections:', sections);
+    return { sections };
   } catch (error) {
-    console.error('Error converting node to section:', error);
-    return null;
+    console.error('Error processing measurements:', error);
+    return { sections: [] };
   }
 }
 
-/**
- * Process measurement content into sections
- */
-export function processMeasurements(content: string): ProcessedMeasurements {
-  // Split content into blocks
-  const blocks = splitIntoBlocks(content);
+function nodeToSection(node: any): MeasurementSection | null {
+  try {
+    const { measurements, description, metadata } = node;
 
-  // Parse blocks into measurement nodes
-  const measurementNodes = blocks
-    .map(block => parseBlock(block))
-    .filter((node): node is MeasurementNode => node !== null);
+    if (!measurements || !metadata || !description) {
+      console.error('Missing required fields in node:', node);
+      return null;
+    }
 
-  // Convert nodes to sections
-  const sections = measurementNodes
-    .map(node => nodeToSection(node))
-    .filter((section): section is MeasurementSection => 
-      section !== null && 
-      section.values.length > 0 && 
-      !!section.sensor_name
-    );
-
-  return { sections };
+    return {
+      sensor_readings: measurements.values || [],
+      total_measurements: measurements['total measurements'] || measurements.values.length,
+      min: measurements.min,
+      max: measurements.max,
+      avg: measurements.avg,
+      units: measurements.units || '',
+      description: description || '',
+      source: metadata.source || '',
+      tst_id: metadata.tst_id || '',
+      uut_type: metadata.uut_type || '',
+      status: metadata.status || '',
+      serial_number: metadata['serial number'] || '',
+      category: metadata.category || '',
+      sub_category: metadata['sub_category'] || '',
+      sensor_name: metadata['sensor name'] || '',
+    };
+  } catch (error) {
+    console.error('Error in nodeToSection:', error, node);
+    return null;
+  }
 }
